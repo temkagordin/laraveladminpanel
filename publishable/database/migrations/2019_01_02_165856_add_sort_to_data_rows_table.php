@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use LaravelAdminPanel\Models\Permission;
 
 class AddSortToDataRowsTable extends Migration
 {
