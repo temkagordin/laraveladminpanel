@@ -3,10 +3,9 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use LaravelAdminPanel\Models\DataType;
 use LaravelAdminPanel\Models\Permission;
 
-class AlterPermissionsTable extends Migration
+class AddSortToDataRowsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,26 +14,32 @@ class AlterPermissionsTable extends Migration
      */
     public function up()
     {
-        if (Schema::hasColumn('permissions', 'slug')) {
-            return false;
-        }
+        //Create new sorting permission
 
-        Schema::table('permissions', function (Blueprint $table) {
-            $table->renameColumn('table_name', 'slug');
+        Schema::table('data_rows', function (Blueprint $table) {
+            $table->boolean('sort')->default(0)->after('delete');
         });
-
-        $dataTypes = DataType::all();
-        $permissions = Permission::whereNotNull('slug')->get();
-
+        //save id permission
+        $permission_list = [];
+        //create new permission
+        $permissions = Permission::whereNotNull('slug')->groupBy('slug')->get(['slug']);
         foreach ($permissions as $permission) {
-            $dataType = $dataTypes->where('name', $permission->slug)->first();
-
-            if ($dataType && $dataType->slug) {
-                $permission->key = str_replace($dataType->name, $dataType->slug, $permission->key);
-                $permission->slug = $dataType->slug;
-                $permission->save();
-            }
+            $new_permission = new Permission();
+            $new_permission->key = 'sort_' . $permission->slug;
+            $new_permission->slug = $permission->slug;
+            $new_permission->save();
+            $permission_list[] = $new_permission->id;
         }
+        Schema::create('data_sort', function (Blueprint $table) {
+            $table->unsignedInteger('data_type_id');
+            $table->unsignedInteger('data_row_id');
+            $table->unsignedInteger('order');
+        });
+        /*     //insert permission to table
+             foreach ($permission_list as $permission_role){
+
+             }*/
+
     }
 
     /**
@@ -44,25 +49,8 @@ class AlterPermissionsTable extends Migration
      */
     public function down()
     {
-        if (Schema::hasColumn('permissions', 'table_name')) {
-            return false;
-        }
-
-        Schema::table('permissions', function (Blueprint $table) {
-            $table->renameColumn('slug', 'table_name');
+        Schema::table('data_rows', function (Blueprint $table) {
+            $table->dropColumn('sort');
         });
-
-        $dataTypes = DataType::all();
-        $permissions = Permission::whereNotNull('table_name')->get();
-
-        foreach ($permissions as $permission) {
-            $dataType = $dataTypes->where('slug', $permission->table_name)->first();
-
-            if ($dataType && $dataType->slug) {
-                $permission->key = str_replace($dataType->slug, $dataType->name, $permission->key);
-                $permission->table_name = $dataType->name;
-                $permission->save();
-            }
-        }
     }
 }
