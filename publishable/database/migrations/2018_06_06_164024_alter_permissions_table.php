@@ -34,6 +34,12 @@ class AddSortToDataRowsTable extends Migration
             $table->unsignedInteger('data_type_id');
             $table->unsignedInteger('data_row_id');
             $table->unsignedInteger('order');
+            $table->foreign('data_type_id')
+                ->references('id')->on('data_types')
+                ->onDelete('cascade');
+            $table->foreign('data_row_id')
+                ->references('id')->on('data_rows')
+                ->onDelete('cascade');
         });
         /*     //insert permission to table
              foreach ($permission_list as $permission_role){
