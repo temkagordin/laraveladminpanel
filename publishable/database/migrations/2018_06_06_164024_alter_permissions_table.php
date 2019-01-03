@@ -31,6 +31,7 @@ class AddSortToDataRowsTable extends Migration
             $permission_list[] = $new_permission->id;
         }
         Schema::create('data_sort', function (Blueprint $table) {
+            $table->increments('id');
             $table->unsignedInteger('data_type_id');
             $table->unsignedInteger('data_row_id');
             $table->unsignedInteger('order');
