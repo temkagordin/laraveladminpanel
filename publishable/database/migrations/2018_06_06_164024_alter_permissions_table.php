@@ -22,14 +22,14 @@ class AddSortToDataRowsTable extends Migration
         //save id permission
         $permission_list = [];
         //create new permission
-        $permissions = Permission::whereNotNull('slug')->groupBy('slug')->get(['slug']);
+    /*    $permissions = Permission::whereNotNull('slug')->groupBy('slug')->get(['slug']);
         foreach ($permissions as $permission) {
             $new_permission = new Permission();
             $new_permission->key = 'sort_' . $permission->slug;
             $new_permission->slug = $permission->slug;
             $new_permission->save();
             $permission_list[] = $new_permission->id;
-        }
+        }*/
         Schema::create('data_sort', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('data_type_id');
